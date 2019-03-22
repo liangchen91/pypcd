@@ -12,7 +12,7 @@ dimatura@cmu.edu, 2013-2018
 import re
 import struct
 import copy
-import cStringIO as sio
+from io import StringIO as sio
 import numpy as np
 import warnings
 import lzf
@@ -20,7 +20,7 @@ import lzf
 HAS_SENSOR_MSGS = True
 try:
     from sensor_msgs.msg import PointField
-    import numpy_pc2  # needs sensor_msgs
+    from . import numpy_pc2  # needs sensor_msgs
 except ImportError:
     HAS_SENSOR_MSGS = False
 
@@ -78,7 +78,8 @@ def parse_header(lines):
     """ Parse header of PCD files.
     """
     metadata = {}
-    for ln in lines:
+    for line in lines:
+        ln = line.decode('ascii')
         if ln.startswith('#') or len(ln) < 2:
             continue
         match = re.match('(\w+)\s+([\w\s\.]+)', ln)
@@ -91,11 +92,11 @@ def parse_header(lines):
         elif key in ('fields', 'type'):
             metadata[key] = value.split()
         elif key in ('size', 'count'):
-            metadata[key] = map(int, value.split())
+            metadata[key] = list(map(int, value.split()))
         elif key in ('width', 'height', 'points'):
             metadata[key] = int(value)
         elif key == 'viewpoint':
-            metadata[key] = map(float, value.split())
+            metadata[key] = list(map(float, value.split()))
         elif key == 'data':
             metadata[key] = value.strip().lower()
         # TODO apparently count is not required?
@@ -155,7 +156,7 @@ def _metadata_is_consistent(metadata):
                 'viewpoint', 'data')
     for f in required:
         if f not in metadata:
-            print('%s required' % f)
+            print(('%s required' % f))
     checks.append((lambda m: all([k in m for k in required]),
                    'missing field'))
     checks.append((lambda m: len(m['type']) == len(m['count']) ==
@@ -174,7 +175,7 @@ def _metadata_is_consistent(metadata):
     ok = True
     for check, msg in checks:
         if not check(metadata):
-            print('error:', msg)
+            print(('error:', msg))
             ok = False
     return ok
 
@@ -205,9 +206,9 @@ def _build_dtype(metadata):
             fieldnames.append(f)
             typenames.append(np_type)
         else:
-            fieldnames.extend(['%s_%04d' % (f, i) for i in xrange(c)])
+            fieldnames.extend(['%s_%04d' % (f, i) for i in range(c)])
             typenames.extend([np_type]*c)
-    dtype = np.dtype(zip(fieldnames, typenames))
+    dtype = np.dtype(list(zip(fieldnames, typenames)))
     return dtype
 
 
@@ -279,7 +280,7 @@ def point_cloud_from_fileobj(f):
     while True:
         ln = f.readline().strip()
         header.append(ln)
-        if ln.startswith('DATA'):
+        if ln.startswith(b'DATA'):
             metadata = parse_header(header)
             dtype = _build_dtype(metadata)
             break
@@ -396,7 +397,7 @@ def save_xyz_label(pc, fname, use_default_lbl=False):
     if not use_default_lbl and ('label' not in md['fields']):
         raise Exception('label is not a field in this point cloud')
     with open(fname, 'w') as f:
-        for i in xrange(pc.points):
+        for i in range(pc.points):
             x, y, z = ['%.4f' % d for d in (
                 pc.pc_data['x'][i], pc.pc_data['y'][i], pc.pc_data['z'][i]
                 )]
@@ -413,7 +414,7 @@ def save_xyz_intensity_label(pc, fname, use_default_lbl=False):
     if 'intensity' not in md['fields']:
         raise Exception('intensity is not a field in this point cloud')
     with open(fname, 'w') as f:
-        for i in xrange(pc.points):
+        for i in range(pc.points):
             x, y, z = ['%.4f' % d for d in (
                 pc.pc_data['x'][i], pc.pc_data['y'][i], pc.pc_data['z'][i]
                 )]
@@ -436,7 +437,7 @@ def save_txt(pc, fname, header=True):
                 if cnt == 1:
                     header_lst.append(field_name)
                 else:
-                    for c in xrange(cnt):
+                    for c in range(cnt):
                         header_lst.append('%s_%04d' % (field_name, c))
             f.write(' '.join(header_lst)+'\n')
         fmtstr = build_ascii_fmtstr(pc)
@@ -479,9 +480,9 @@ def add_fields(pc, metadata, pc_data):
             fieldnames.append(f)
             typenames.append(np_type)
         else:
-            fieldnames.extend(['%s_%04d' % (f, i) for i in xrange(c)])
+            fieldnames.extend(['%s_%04d' % (f, i) for i in range(c)])
             typenames.extend([np_type]*c)
-    dtype = zip(fieldnames, typenames)
+    dtype = list(zip(fieldnames, typenames))
     # new dtype. could be inferred?
     new_dtype = [(f, pc.pc_data.dtype[f])
                  for f in pc.pc_data.dtype.names] + dtype
@@ -664,7 +665,7 @@ class PointCloud(object):
     """
 
     def __init__(self, metadata, pc_data):
-        self.metadata_keys = metadata.keys()
+        self.metadata_keys = list(metadata.keys())
         self.__dict__.update(metadata)
         self.pc_data = pc_data
         self.check_sanity()

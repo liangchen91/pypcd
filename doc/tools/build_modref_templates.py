@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Script to auto-generate API docs.
 """
-from __future__ import print_function, division
+
 
 # stdlib imports
 import sys
@@ -17,7 +17,7 @@ from distutils.version import LooseVersion as V
 #*****************************************************************************
 
 def abort(error):
-    print('*WARNING* API documentation not generated: %s' % error)
+    print(('*WARNING* API documentation not generated: %s' % error))
     exit()
 
 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     with open(ver_file) as f:
         exec(f.read())
     source_version = __version__
-    print('***', source_version)
+    print(('***', source_version))
 
     if source_version != installed_version:
         abort("Installed version does not match source version")
@@ -65,4 +65,4 @@ if __name__ == '__main__':
                                         r'\.version.*$']
     docwriter.write_api_docs(outdir)
     docwriter.write_index(outdir, 'index', relative_to=outdir)
-    print('%d files written' % len(docwriter.written_modules))
+    print(('%d files written' % len(docwriter.written_modules)))

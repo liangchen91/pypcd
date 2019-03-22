@@ -1,7 +1,7 @@
 """Extract reference documentation from the NumPy source tree.
 
 """
-from __future__ import division, absolute_import, print_function
+
 
 import inspect
 import textwrap
@@ -405,7 +405,7 @@ class NumpyDocString(collections.Mapping):
         idx = self['index']
         out = []
         out += ['.. index:: %s' % idx.get('default', '')]
-        for section, references in idx.items():
+        for section, references in list(idx.items()):
             if section == 'default':
                 continue
             out += ['   :%s: %s' % (section, ', '.join(references))]
@@ -491,7 +491,7 @@ class FunctionDoc(NumpyDocString):
 
         if self._role:
             if self._role not in roles:
-                print("Warning: invalid role %s" % self._role)
+                print(("Warning: invalid role %s" % self._role))
             out += '.. %s:: %s\n    \n\n' % (roles.get(self._role, ''),
                                              func_name)
 

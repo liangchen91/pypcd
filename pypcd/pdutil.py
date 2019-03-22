@@ -1,4 +1,4 @@
-import pypcd
+from . import pypcd
 
 
 def data_frame_to_point_cloud(df):

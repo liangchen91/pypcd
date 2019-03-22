@@ -152,7 +152,7 @@ def test_path_roundtrip_binary(pcd_fname):
 
     pc2 = pypcd.PointCloud.from_path(tmp_fname)
     md2 = pc2.get_metadata()
-    for k, v in md2.iteritems():
+    for k, v in list(md2.items()):
         if k == 'data':
             assert v == 'binary'
         else:
@@ -180,7 +180,7 @@ def test_path_roundtrip_binary_compressed(pcd_fname):
 
     pc2 = pypcd.PointCloud.from_path(tmp_fname)
     md2 = pc2.get_metadata()
-    for k, v in md2.iteritems():
+    for k, v in list(md2.items()):
         if k == 'data':
             assert v == 'binary_compressed'
         else:

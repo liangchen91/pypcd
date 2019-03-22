@@ -181,7 +181,7 @@ class ApiDocWriter(object):
         ''' Parse module defined in *uri* '''
         filename = self._uri2path(uri)
         if filename is None:
-            print(filename, 'erk')
+            print((filename, 'erk'))
             # nothing that we could handle here.
             return ([],[])
 
@@ -272,7 +272,7 @@ class ApiDocWriter(object):
         # get the names of all classes and functions
         functions, classes = self._parse_module_with_import(uri)
         if not len(functions) and not len(classes) and DEBUG:
-            print('WARNING: Empty -', uri)  # dbg
+            print(('WARNING: Empty -', uri))  # dbg
 
         # Make a shorter version of the uri that omits the package name for
         # titles
@@ -424,13 +424,13 @@ class ApiDocWriter(object):
 
         written_modules = []
 
-        for ulm, mods in module_by_ulm.items():
-            print("Generating docs for %s:" % ulm)
+        for ulm, mods in list(module_by_ulm.items()):
+            print(("Generating docs for %s:" % ulm))
             document_head = []
             document_body = []
 
             for m in mods:
-                print("  -> " + m)
+                print(("  -> " + m))
                 head, body = self.generate_api_doc(m)
 
                 document_head.append(head)

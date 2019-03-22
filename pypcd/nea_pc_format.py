@@ -248,7 +248,7 @@ def field_dict_list_to_dtypes(field_dicts):
     for f in field_dicts:
         count = f['count']
         if count > 1:
-            for c in xrange(count):
+            for c in range(count):
                 name = '%s_%04d' % (f['name'], c)
                 nptype = _pftype_to_nptype[f['datatype']]
                 dtypes.append((name, nptype))
